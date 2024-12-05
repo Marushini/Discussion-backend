@@ -1,16 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const Post = require('../models/Post');
 
-router.post('/', async (req, res) => {
-  const post = new Post(req.body);
-  await post.save();
-  res.status(201).send(post);
-});
-
-router.get('/', async (req, res) => {
-  const posts = await Post.find().populate('author');
-  res.status(200).json(posts);
+// Mock POST route for creating a post
+router.post('/posts', (req, res) => {
+  const { title, content } = req.body;
+  if (!title || !content) {
+    return res.status(400).json({ message: 'Title and content are required' });
+  }
+  res.status(201).json({ message: 'Post created successfully', post: { title, content } });
 });
 
 module.exports = router;
