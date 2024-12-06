@@ -1,22 +1,24 @@
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const connectDB = require('./db'); // This should point to the correct db.js location
+const express = require("express");
+const dotenv = require("dotenv");
+const cors = require("cors");
+const bodyParser = require("body-parser");
+const connectDB = require("./db");
 
-const userRoutes = require('./routes/userRoutes');
-const postRoutes = require('./routes/postRoutes');
-const commentRoutes = require('./routes/commentRoutes');
-
+dotenv.config();
 const app = express();
+const PORT = process.env.PORT || 5000;
+
+// Connect to database
+connectDB();
+
+// Middleware
 app.use(cors());
-app.use(express.json());
+app.use(bodyParser.json());
 
-app.use('/api/users', userRoutes);
-app.use('/api/posts', postRoutes);
-app.use('/api/comments', commentRoutes);
+// Routes
+app.use("/api/auth", require("./routes/authRoutes"));
+app.use("/api/posts", require("./routes/postRoutes"));
+app.use("/api/comments", require("./routes/commentRoutes"));
 
-connectDB(); // Call the connectDB function
-    
-app.listen(5000, () => {
-  console.log('Server running on port 5000');
-});
+// Start server
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

@@ -1,13 +1,17 @@
-const express = require('express');
+const express = require("express");
+const {
+  createPost,
+  getAllPosts,
+  updatePost,
+  deletePost,
+} = require("../controllers/postControllers");
+const { protect } = require("../middleware/authMiddleware");
+
 const router = express.Router();
 
-// Mock POST route for creating a post
-router.post('/posts', (req, res) => {
-  const { title, content } = req.body;
-  if (!title || !content) {
-    return res.status(400).json({ message: 'Title and content are required' });
-  }
-  res.status(201).json({ message: 'Post created successfully', post: { title, content } });
-});
+router.post("/", protect, createPost);
+router.get("/", protect, getAllPosts);
+router.put("/:id", protect, updatePost);
+router.delete("/:id", protect, deletePost);
 
 module.exports = router;
