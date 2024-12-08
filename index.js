@@ -1,25 +1,24 @@
 const express = require('express');
-const connectDB = require('./db');
-const authRoutes = require('./routes/authRoutes');
-const postRoutes = require('./routes/postRoutes');
-const commentRoutes = require('./routes/commentRoutes');
-require('dotenv').config();
+const dotenv = require('dotenv');
+const cors = require('cors');
+const connectDB = require('./db'); // Import your database connection
+const authRoutes = require('./routes/authRoutes'); // Import the authRoutes
 
+dotenv.config();
 const app = express();
 
 // Middleware
-app.use(express.json());
+app.use(express.json()); // To parse JSON data
+app.use(cors()); // If you want to allow cross-origin requests
 
-// Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/posts', postRoutes);
-app.use('/api/comments', commentRoutes);
-
-// Connect to DB
+// Connect to the database
 connectDB();
 
-// Start Server
+// Use auth routes
+app.use('/api/auth', authRoutes); // This ensures your /api/auth/login route is accessible
+
+// Start the server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    console.log(`Server is running on port ${PORT}`);
 });

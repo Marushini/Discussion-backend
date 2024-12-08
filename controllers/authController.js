@@ -1,25 +1,39 @@
+// authController.js
+
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
 
-// JWT Secret
-const JWT_SECRET = process.env.JWT_SECRET || '123456';
+// Dummy user data for demo purposes (replace with database query in real app)
+const users = [
+    {
+        id: 1,
+        email: 'Maru@123',
+        password: '123', // In a real app, this would be a hashed password
+    },
+];
 
-const login = async (req, res) => {
+// Login function
+const login = (req, res) => {
     const { email, password } = req.body;
 
-    try {
-        const user = await User.findOne({ email });
-        if (!user) return res.status(401).json({ error: 'Invalid email or password' });
-
-        const isPasswordValid = await bcrypt.compare(password, user.password);
-        if (!isPasswordValid) return res.status(401).json({ error: 'Invalid email or password' });
-
-        const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: '1h' });
-        res.status(200).json({ token });
-    } catch (error) {
-        res.status(500).json({ error: 'Server error' });
+    // Find the user by email
+    const user = users.find(u => u.email === email);
+    if (!user) {
+        return res.status(400).json({ message: 'Invalid credentials' });
     }
+
+    // Compare the password (In a real app, you'd hash and compare the password)
+    if (user.password !== password) {
+        return res.status(400).json({ message: 'Invalid credentials' });
+    }
+
+    // Generate JWT token
+    const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET_KEY, {
+        expiresIn: '1h',
+    });
+
+    // Send response
+    res.status(200).json({ message: 'Login successful', token });
 };
 
 module.exports = { login };
