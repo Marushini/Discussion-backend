@@ -18,9 +18,13 @@ router.post("/register", async (req, res) => {
     const newUser = new User({ email, password: hashedPassword });
     await newUser.save();
 
+    // Generate JWT token after successful registration
     const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
+    
+    // Send the token back to the client
     res.status(201).json({ token });
   } catch (err) {
+    console.error(err);  // log error for debugging
     res.status(500).json({ message: "Server error" });
   }
 });
@@ -40,9 +44,13 @@ router.post("/login", async (req, res) => {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
+    // Generate JWT token for logged-in user
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
+    
+    // Send token in response
     res.json({ token });
   } catch (err) {
+    console.error(err);  // log error for debugging
     res.status(500).json({ message: "Server error" });
   }
 });
