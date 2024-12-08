@@ -1,39 +1,32 @@
-// authController.js
-
+const express = require('express');
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
+const User = require('../models/User'); // Assuming you have a User model
+const router = express.Router();
 
-// Dummy user data for demo purposes (replace with database query in real app)
-const users = [
-    {
-        id: 1,
-        email: 'Maru@123',
-        password: '123', // In a real app, this would be a hashed password
-    },
-];
+// POST route to login without JWT
+router.post('/login', async (req, res) => {
+  const { email, password } = req.body;
 
-// Login function
-const login = (req, res) => {
-    const { email, password } = req.body;
-
-    // Find the user by email
-    const user = users.find(u => u.email === email);
+  try {
+    // Check if the user exists
+    const user = await User.findOne({ email });
     if (!user) {
-        return res.status(400).json({ message: 'Invalid credentials' });
+      return res.status(400).json({ error: 'Invalid credentials' });
     }
 
-    // Compare the password (In a real app, you'd hash and compare the password)
-    if (user.password !== password) {
-        return res.status(400).json({ message: 'Invalid credentials' });
+    // Check if password is correct
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(400).json({ error: 'Invalid credentials' });
     }
 
-    // Generate JWT token
-    const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET_KEY, {
-        expiresIn: '1h',
-    });
+    // User is authenticated, no JWT generated
+    res.status(200).json({ message: 'Login successful', userId: user._id });
 
-    // Send response
-    res.status(200).json({ message: 'Login successful', token });
-};
+  } catch (error) {
+    console.error('Error during login:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
 
-module.exports = { login };
+module.exports = router;
