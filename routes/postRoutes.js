@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const Post = require("../models/Post"); // Assuming you have a Post model
-const { verifyToken } = require("../middleware/authMiddleware");
+const Post = require("../models/Post"); // Ensure this path is correct
+const { verifyToken } = require("../middleware/authMiddleware"); // Ensure this path is correct
 
 // POST route to create a new post
 router.post("/", verifyToken, async (req, res) => {
