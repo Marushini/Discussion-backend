@@ -33,7 +33,7 @@ app.use("/api/comments", commentRoutes);
 
 // Default route
 app.get("/", (req, res) => {
-  res.send("API is running...");
+  res.send("Backend connected successfuly");
 });
 
 // Error handling middleware
