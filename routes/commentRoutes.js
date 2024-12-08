@@ -1,29 +1,13 @@
-const express = require("express");
+const express = require('express');
+const { createComment, getCommentsForPost } = require('../controllers/commentController');
+const { verifyToken } = require('../middleware/authMiddleware');
+
 const router = express.Router();
-const Comment = require("../models/Comment");
-const { verifyToken } = require("../middleware/authMiddleware");
 
-// Get all comments
-router.get("/", verifyToken, async (req, res) => {
-  try {
-    const comments = await Comment.find();
-    res.json(comments);
-  } catch (err) {
-    res.status(500).json({ message: "Server error" });
-  }
-});
+// Create Comment
+router.post('/', verifyToken, createComment);
 
-// Post a comment
-router.post("/", verifyToken, async (req, res) => {
-  const { text } = req.body;
-
-  try {
-    const newComment = new Comment({ text });
-    await newComment.save();
-    res.status(201).json(newComment);
-  } catch (err) {
-    res.status(500).json({ message: "Server error" });
-  }
-});
+// Get Comments for a Post
+router.get('/:postId', getCommentsForPost);
 
 module.exports = router;
