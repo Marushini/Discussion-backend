@@ -1,24 +1,45 @@
-const express = require('express');
-const dotenv = require('dotenv');
-const cors = require('cors');
-const connectDB = require('./db'); // Import your database connection
-const authRoutes = require('./routes/authRoutes'); // Import the authRoutes
+const express = require("express");
+const mongoose = require("mongoose");
+const dotenv = require("dotenv");
+const cors = require("cors");
+
+const authRoutes = require("./routes/authRoutes");
+const postRoutes = require("./routes/postRoutes");
+const commentRoutes = require("./routes/commentRoutes");
+
 
 dotenv.config();
+
+
 const app = express();
 
 // Middleware
-app.use(express.json()); // To parse JSON data
-app.use(cors()); // If you want to allow cross-origin requests
+app.use(cors()); 
+app.use(express.json()); 
 
-// Connect to the database
-connectDB();
+mongoose
+  .connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log("MongoDB Connected"))
+  .catch((err) => console.error("MongoDB Connection Error:", err));
 
-// Use auth routes
-app.use('/api/auth', authRoutes); // This ensures your /api/auth/login route is accessible
+// Routes
+app.use("/api/auth", authRoutes);
+app.use("/api/posts", postRoutes);
+app.use("/api/comments", commentRoutes);
 
-// Start the server
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+
+app.get("/", (req, res) => {
+  res.send("Backend connected successfuly");
 });
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: "Something went wrong" });
+});
+
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
